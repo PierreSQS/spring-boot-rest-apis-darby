@@ -48,7 +48,7 @@ public class BookController {
     @PostMapping
     public void createBook(@RequestBody Book newBook) {
         boolean isNewBook = books.stream()
-                        .noneMatch(book -> book.getTitle().equalsIgnoreCase(newBook.getTitle()));
+                .noneMatch(book -> book.getTitle().equalsIgnoreCase(newBook.getTitle()));
         if (isNewBook) {
             books.add(newBook);
         }
@@ -56,12 +56,7 @@ public class BookController {
 
     @PutMapping("/{title}")
     public void updateBook(@PathVariable String title, @RequestBody Book updatedBook) {
-        for (int i = 0; i< books.size(); i++) {
-            if (books.get(i).getTitle().equalsIgnoreCase(title)) {
-                books.set(i, updatedBook);
-                return;
-            }
-        }
+        books.replaceAll(book -> book.getTitle().equalsIgnoreCase(title) ? updatedBook : book);
     }
 
     @DeleteMapping("/{title}")
