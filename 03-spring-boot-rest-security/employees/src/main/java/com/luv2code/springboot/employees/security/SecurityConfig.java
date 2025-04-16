@@ -1,11 +1,15 @@
 package com.luv2code.springboot.employees.security;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -15,6 +19,7 @@ import javax.sql.DataSource;
 
 @Configuration
 public class SecurityConfig {
+    public static final String API_EMPLOYEES_PATH_PATTERN = "/api/employees/**";
 
     // add support for JDBC ... no more hardcoded users :-)
 
@@ -23,12 +28,12 @@ public class SecurityConfig {
 
         JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
-        // define query to retrieve a user by username
+        // define a query to retrieve a user by username
         jdbcUserDetailsManager.setUsersByUsernameQuery(
                 "select user_id, password, active from system_users where user_id=?"
         );
 
-        // define query to retrieve the authorities/roles by username
+        // define a query to retrieve the authorities/roles by username
 
         jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(
                 "select user_id, role from roles where user_id=?"
@@ -39,30 +44,34 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // allow H2 database console
+        http.authorizeHttpRequests(configurer ->
+                configurer
+                        .requestMatchers(PathRequest.toH2Console()).permitAll()
+                        //.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+        );
 
         http.authorizeHttpRequests(configurer ->
                 configurer
-                        .requestMatchers(HttpMethod.GET, "/h2-console/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/h2-console/**").permitAll()
                         .requestMatchers("/docs/**", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/employees").hasRole("EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, "/api/employees/**").hasRole("EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, API_EMPLOYEES_PATH_PATTERN).hasRole("EMPLOYEE")
                         .requestMatchers(HttpMethod.POST, "/api/employees").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/api/employees/**").hasRole("MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/employees/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, API_EMPLOYEES_PATH_PATTERN).hasRole("MANAGER")
+                        .requestMatchers(HttpMethod.DELETE, API_EMPLOYEES_PATH_PATTERN).hasRole("ADMIN")
                 );
 
-        http.httpBasic(httpBasicCustomizer -> httpBasicCustomizer.disable());
+        http.httpBasic(HttpBasicConfigurer::disable);
 
         // Use HTTP Basic Authentication
         http.httpBasic(Customizer.withDefaults());
 
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(CsrfConfigurer::disable);
 
         http.exceptionHandling(exceptionHandling -> exceptionHandling
                 .authenticationEntryPoint(authenticationEntryPoint()));
 
-        http.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()));
+        http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
 
         return http.build();
     }
