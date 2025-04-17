@@ -12,11 +12,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Collections;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,61 +28,79 @@ class EmployeeRestControllerTest {
 
     @Test
     @WithMockUser(roles = "EMPLOYEE")
-    void testFindAllEmployeesWithEmployeeRole() throws Exception {
-        Mockito.when(employeeService.findAll()).thenReturn(Collections.emptyList());
+    void findEmployeeByIdWithValidIdReturnsEmployee() throws Exception {
+        Employee employee = new Employee();
+        employee.setId(2L);
+        employee.setFirstName("Jane");
+        employee.setLastName("Doe");
+        employee.setEmail("jane.doe@example.com");
 
-        mockMvc.perform(get("/api/employees"))
+        Mockito.when(employeeService.findById(2L)).thenReturn(employee);
+
+        mockMvc.perform(get("/api/employees/2"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$.id").value(2))
+                .andExpect(jsonPath("$.firstName").value("Jane"))
+                .andExpect(jsonPath("$.lastName").value("Doe"))
+                .andExpect(jsonPath("$.email").value("jane.doe@example.com"));
+    }
+
+    @Test
+    @WithMockUser(roles = "EMPLOYEE")
+    void findEmployeeByIdWithInvalidIdReturnsNotFound() throws Exception {
+        Mockito.when(employeeService.findById(99L)).thenThrow(new RuntimeException("Employee not found"));
+
+        mockMvc.perform(get("/api/employees/99"))
+                .andExpect(status().isNotFound());
     }
 
     @Test
     @WithMockUser(roles = "MANAGER")
-    void testAddEmployeeWithManagerRole() throws Exception {
+    void updateEmployeeWithValidDataReturnsUpdatedEmployee() throws Exception {
         EmployeeRequest employeeRequest = new EmployeeRequest();
-        employeeRequest.setFirstName("John");
-        employeeRequest.setLastName("Doe");
-        employeeRequest.setEmail("john.doe@example.com");
+        employeeRequest.setFirstName("Updated");
+        employeeRequest.setLastName("Name");
+        employeeRequest.setEmail("updated.name@example.com");
 
-        Employee savedEmployee = new Employee();
-        savedEmployee.setId(1L);
-        savedEmployee.setFirstName("John");
-        savedEmployee.setLastName("Doe");
-        savedEmployee.setEmail("john.doe@example.com");
+        Employee updatedEmployee = new Employee();
+        updatedEmployee.setId(1L);
+        updatedEmployee.setFirstName("Updated");
+        updatedEmployee.setLastName("Name");
+        updatedEmployee.setEmail("updated.name@example.com");
 
-        Mockito.when(employeeService.save(any(EmployeeRequest.class))).thenReturn(savedEmployee);
+        Mockito.when(employeeService.update(eq(1L), any(EmployeeRequest.class))).thenReturn(updatedEmployee);
 
-        mockMvc.perform(post("/api/employees")
+        mockMvc.perform(put("/api/employees/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .with(csrf())
                         .content("""
                                 {
-                                    "firstName": "John",
-                                    "lastName": "Doe",
-                                    "email": "john.doe@example.com"
+                                    "firstName": "Updated",
+                                    "lastName": "Name",
+                                    "email": "updated.name@example.com"
                                 }
                                 """))
-                .andExpect(status().isCreated())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"))
-                .andExpect(jsonPath("$.email").value("john.doe@example.com"));
+                .andExpect(jsonPath("$.firstName").value("Updated"))
+                .andExpect(jsonPath("$.lastName").value("Name"))
+                .andExpect(jsonPath("$.email").value("updated.name@example.com"));
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
-    void testDeleteEmployeeWithAdminRole() throws Exception {
-        Mockito.doNothing().when(employeeService).deleteById(eq(1L));
+    @WithMockUser(roles = "MANAGER")
+    void updateEmployeeWithInvalidIdReturnsNotFound() throws Exception {
+        Mockito.when(employeeService.update(eq(99L), any(EmployeeRequest.class))).thenThrow(new RuntimeException("Employee not found"));
 
-        mockMvc.perform(delete("/api/employees/1")
-                        .with(csrf()))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void testUnauthorizedAccess() throws Exception {
-        mockMvc.perform(get("/api/employees"))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(put("/api/employees/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                    "firstName": "Invalid",
+                                    "lastName": "User",
+                                    "email": "invalid.user@example.com"
+                                }
+                                """))
+                .andExpect(status().isNotFound());
     }
 }
