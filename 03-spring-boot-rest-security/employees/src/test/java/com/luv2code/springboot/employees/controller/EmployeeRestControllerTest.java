@@ -16,6 +16,7 @@ import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -57,6 +58,7 @@ class EmployeeRestControllerTest {
 
         mockMvc.perform(post("/api/employees")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
                         .content("""
                                 {
                                     "firstName": "John",
@@ -76,7 +78,8 @@ class EmployeeRestControllerTest {
     void testDeleteEmployeeWithAdminRole() throws Exception {
         Mockito.doNothing().when(employeeService).deleteById(eq(1L));
 
-        mockMvc.perform(delete("/api/employees/1"))
+        mockMvc.perform(delete("/api/employees/1")
+                        .with(csrf()))
                 .andExpect(status().isNoContent());
     }
 
