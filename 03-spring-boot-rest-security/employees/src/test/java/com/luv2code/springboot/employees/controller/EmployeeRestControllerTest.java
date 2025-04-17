@@ -1,11 +1,11 @@
 package com.luv2code.springboot.employees.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luv2code.springboot.employees.entity.Employee;
 import com.luv2code.springboot.employees.request.EmployeeRequest;
 import com.luv2code.springboot.employees.service.EmployeeService;
 import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
@@ -16,6 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -26,6 +27,9 @@ class EmployeeRestControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+    
     @MockitoBean
     EmployeeService employeeService;
 
@@ -38,7 +42,7 @@ class EmployeeRestControllerTest {
         employee.setLastName("Doe");
         employee.setEmail("jane.doe@example.com");
 
-        Mockito.when(employeeService.findById(2L)).thenReturn(employee);
+        given(employeeService.findById(2L)).willReturn(employee);
 
         mockMvc.perform(get("/api/employees/2"))
                 .andExpect(status().isOk())
@@ -52,7 +56,7 @@ class EmployeeRestControllerTest {
     @Test
     @WithMockUser(roles = "EMPLOYEE")
     void findEmployeeByIdWithInvalidIdReturnsNotFound() {
-        Mockito.when(employeeService.findById(99L)).thenThrow(new RuntimeException("Employee not found"));
+        given(employeeService.findById(99L)).willThrow(new RuntimeException("Employee not found"));
 
         assertThatThrownBy(() -> mockMvc.perform(get("/api/employees/99")))
                 .isInstanceOf(ServletException.class)
@@ -74,18 +78,12 @@ class EmployeeRestControllerTest {
         updatedEmployee.setLastName("Name");
         updatedEmployee.setEmail("updated.name@example.com");
 
-        Mockito.when(employeeService.update(eq(1L), any(EmployeeRequest.class))).thenReturn(updatedEmployee);
+        given(employeeService.update(eq(1L), any(EmployeeRequest.class))).willReturn(updatedEmployee);
 
         mockMvc.perform(put("/api/employees/1")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "firstName": "Updated",
-                                    "lastName": "Name",
-                                    "email": "updated.name@example.com"
-                                }
-                                """))
+                        .content(objectMapper.writeValueAsString(updatedEmployee)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.firstName").value("Updated"))
@@ -96,7 +94,7 @@ class EmployeeRestControllerTest {
     @Test
     @WithMockUser(roles = "MANAGER")
     void updateEmployeeWithInvalidIdReturnsNotFound() {
-        Mockito.when(employeeService.update(eq(99L), any(EmployeeRequest.class))).thenThrow(new RuntimeException("Employee not found"));
+        given(employeeService.update(eq(99L), any(EmployeeRequest.class))).willThrow(new RuntimeException("Employee not found"));
 
         assertThatThrownBy(() -> mockMvc.perform(put("/api/employees/99")
                 .with(csrf())
