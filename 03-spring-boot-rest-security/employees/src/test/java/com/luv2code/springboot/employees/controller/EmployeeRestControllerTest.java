@@ -3,6 +3,7 @@ package com.luv2code.springboot.employees.controller;
 import com.luv2code.springboot.employees.entity.Employee;
 import com.luv2code.springboot.employees.request.EmployeeRequest;
 import com.luv2code.springboot.employees.service.EmployeeService;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,10 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -21,10 +24,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class EmployeeRestControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @MockitoBean
-    private EmployeeService employeeService;
+    EmployeeService employeeService;
 
     @Test
     @WithMockUser(roles = "EMPLOYEE")
@@ -48,11 +51,13 @@ class EmployeeRestControllerTest {
 
     @Test
     @WithMockUser(roles = "EMPLOYEE")
-    void findEmployeeByIdWithInvalidIdReturnsNotFound() throws Exception {
+    void findEmployeeByIdWithInvalidIdReturnsNotFound() {
         Mockito.when(employeeService.findById(99L)).thenThrow(new RuntimeException("Employee not found"));
 
-        mockMvc.perform(get("/api/employees/99"))
-                .andExpect(status().isNotFound());
+        assertThatThrownBy(() -> mockMvc.perform(get("/api/employees/99")))
+                .isInstanceOf(ServletException.class)
+                .hasMessageContaining("Employee not found");
+
     }
 
     @Test
@@ -72,6 +77,7 @@ class EmployeeRestControllerTest {
         Mockito.when(employeeService.update(eq(1L), any(EmployeeRequest.class))).thenReturn(updatedEmployee);
 
         mockMvc.perform(put("/api/employees/1")
+                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""
                                 {
@@ -89,18 +95,20 @@ class EmployeeRestControllerTest {
 
     @Test
     @WithMockUser(roles = "MANAGER")
-    void updateEmployeeWithInvalidIdReturnsNotFound() throws Exception {
+    void updateEmployeeWithInvalidIdReturnsNotFound() {
         Mockito.when(employeeService.update(eq(99L), any(EmployeeRequest.class))).thenThrow(new RuntimeException("Employee not found"));
 
-        mockMvc.perform(put("/api/employees/99")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("""
-                                {
-                                    "firstName": "Invalid",
-                                    "lastName": "User",
-                                    "email": "invalid.user@example.com"
-                                }
-                                """))
-                .andExpect(status().isNotFound());
+        assertThatThrownBy(() -> mockMvc.perform(put("/api/employees/99")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {
+                            "firstName": "Invalid",
+                            "lastName": "User",
+                            "email": "invalid.user@example.com"
+                        }
+                        """)))
+                .isInstanceOf(ServletException.class)
+                .hasMessageContaining("Employee not found");
     }
 }
