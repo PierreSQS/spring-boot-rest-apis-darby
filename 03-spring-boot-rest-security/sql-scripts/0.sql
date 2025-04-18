@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS employee;
 
 -- Create employee table
 CREATE TABLE employee (
-  if BIGINT PRIMARY KEY AUTO_INCREMENT,
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
   first_name VARCHAR(45),
   last_name VARCHAR(45),
   email VARCHAR(45)
