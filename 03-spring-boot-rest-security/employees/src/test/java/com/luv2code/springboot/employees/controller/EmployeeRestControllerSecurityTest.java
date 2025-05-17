@@ -17,16 +17,17 @@ import java.util.Collections;
 import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(EmployeeRestController.class)
 class EmployeeRestControllerSecurityTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     @MockBean
-    private EmployeeService employeeService;
+    EmployeeService employeeService;
 
     @Test
     @WithMockUser(roles = "EMPLOYEE")
@@ -36,22 +37,25 @@ class EmployeeRestControllerSecurityTest {
         mockMvc.perform(get("/api/employees"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray());
+                .andExpect(jsonPath("$").isArray())
+                .andDo(print());
     }
 
     @Test
     @WithMockUser(roles = "MANAGER")
     void testAddEmployeeWithManagerRole() throws Exception {
-        EmployeeRequest employeeRequest = new EmployeeRequest();
-        employeeRequest.setFirstName("John");
-        employeeRequest.setLastName("Doe");
-        employeeRequest.setEmail("john.doe@example.com");
+        EmployeeRequest employeeRequest = EmployeeRequest.builder()
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .build();
 
-        Employee savedEmployee = new Employee();
-        savedEmployee.setId(1L);
-        savedEmployee.setFirstName("John");
-        savedEmployee.setLastName("Doe");
-        savedEmployee.setEmail("john.doe@example.com");
+        Employee savedEmployee = Employee.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .email("john.doe@example.com")
+                .build();
 
         Mockito.when(employeeService.save(any(EmployeeRequest.class))).thenReturn(savedEmployee);
 
@@ -69,7 +73,8 @@ class EmployeeRestControllerSecurityTest {
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
-                .andExpect(jsonPath("$.email").value("john.doe@example.com"));
+                .andExpect(jsonPath("$.email").value("john.doe@example.com"))
+                .andDo(print());
     }
 
     @Test
@@ -79,12 +84,14 @@ class EmployeeRestControllerSecurityTest {
 
         mockMvc.perform(delete("/api/employees/1")
                         .with(csrf()))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNoContent())
+                .andDo(print());
     }
 
     @Test
     void testUnauthorizedAccess() throws Exception {
         mockMvc.perform(get("/api/employees"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isUnauthorized())
+                .andDo(print());
     }
 }
