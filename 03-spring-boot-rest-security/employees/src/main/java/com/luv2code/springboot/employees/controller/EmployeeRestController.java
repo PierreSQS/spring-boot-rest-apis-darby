@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +17,8 @@ import java.util.List;
 @Tag(name="Employee Rest API Endpoints", description = "Operations related to employees.")
 public class EmployeeRestController {
 
-    private EmployeeService employeeService;
+    private final EmployeeService employeeService;
 
-    @Autowired
     public EmployeeRestController(EmployeeService theEmployeeService) {
         employeeService = theEmployeeService;
     }
@@ -36,8 +34,7 @@ public class EmployeeRestController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/{employeeId}")
     public Employee getEmployee(@PathVariable @Min(value=2) long employeeId) {
-        Employee theEmployee = employeeService.findById(employeeId);
-        return theEmployee;
+        return employeeService.findById(employeeId);
     }
 
     @Operation(summary = "Create a new employee", description = "Add a new employee to db.")
@@ -45,9 +42,7 @@ public class EmployeeRestController {
     @PostMapping()
     public Employee addEmployee(@Valid @RequestBody EmployeeRequest theEmployee) {
 
-        Employee dbEmployee = employeeService.save(theEmployee);
-
-        return dbEmployee;
+        return employeeService.save(theEmployee);
     }
 
     @Operation(summary = "Update an employee", description = "Update the details of a current employee.")
@@ -56,9 +51,7 @@ public class EmployeeRestController {
     public Employee updateEmployee(@PathVariable @Min(value=1) long employeeId,
                                    @Valid @RequestBody EmployeeRequest employeeRequest) {
 
-        Employee dbEmployee = employeeService.update(employeeId, employeeRequest);
-
-        return dbEmployee;
+        return employeeService.update(employeeId, employeeRequest);
     }
 
     @Operation(summary = "Delete a employee", description = "Remove an employee from the database.")
