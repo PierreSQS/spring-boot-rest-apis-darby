@@ -24,7 +24,8 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public boolean isTokenValid(String token, UserDetails userDetails) {
-        return false;
+        final String username = extractClaim(token, Claims::getSubject);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
     @Override
@@ -37,9 +38,9 @@ public class JwtServiceImpl implements JwtService {
                 .compact();
     }
 
-    @Override
-    public boolean isTokenExpired(String token, UserDetails userDetails) {
-        return false;
+    public boolean isTokenExpired(String token) {
+        final Date expiration = extractClaim(token, Claims::getExpiration);
+        return (new Date().after(expiration));
     }
 
     // Extract a specific claim from all the claims
