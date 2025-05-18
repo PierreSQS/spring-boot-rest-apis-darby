@@ -1,7 +1,17 @@
 package com.luv2code.springboot.todos.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "todos")
 @Entity
 public class Todo {
@@ -27,62 +37,4 @@ public class Todo {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    // Default constructor (required by JPA)
-    public Todo() {}
-
-    public Todo(String title, String description, int priority, boolean complete, User owner) {
-        this.title = title;
-        this.description = description;
-        this.priority = priority;
-        this.complete = complete;
-        this.owner = owner;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getPriority() {
-        return priority;
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
-    }
-
-    public boolean isComplete() {
-        return complete;
-    }
-
-    public void setComplete(boolean complete) {
-        this.complete = complete;
-    }
-
-    public User getOwner() {
-        return owner;
-    }
-
-    public void setOwner(User owner) {
-        this.owner = owner;
-    }
 }
