@@ -1,6 +1,7 @@
 package com.luv2code.springboot.todos.service;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -27,19 +28,22 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
-        // Create a secret key using the signature algorithm
-        SecretKey jwtSecret = Jwts.SIG.HS256.key().build();
         return Jwts.builder()
                 .claims(claims).subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(jwtExpiration)))
-                .signWith(jwtSecret)
+                .signWith(getSigningKey())
                 .compact();
     }
 
     @Override
     public boolean isTokenExpired(String token, UserDetails userDetails) {
         return false;
+    }
+
+    // Create a secret key using the signature algorithm
+    private SecretKey getSigningKey() {
+        return Jwts.SIG.HS256.key().build();
     }
 
 }
