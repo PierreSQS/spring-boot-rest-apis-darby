@@ -33,7 +33,7 @@ public class AuthenticationController {
     @Operation(summary = "Login a user", description = "Login a user by generation JWT token for this User.")
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
-    public AuthenticationResponse login(@Valid @RequestBody AuthenticationRequest authRequest) throws Exception {
+    public AuthenticationResponse login(@Valid @RequestBody AuthenticationRequest authRequest) {
         return authenticationService.login(authRequest);
     }
 }
