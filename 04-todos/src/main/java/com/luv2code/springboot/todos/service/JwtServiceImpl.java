@@ -17,6 +17,8 @@ public class JwtServiceImpl implements JwtService {
     @Value("${jwt.expiration}")
     private String jwtExpiration;
 
+    private SecretKey signingKey;
+
     @Override
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -30,11 +32,12 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String generateToken(Map<String, Object> claims, UserDetails userDetails) {
+        signingKey = getSigningKey();
         return Jwts.builder()
                 .claims(claims).subject(userDetails.getUsername())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + Long.parseLong(jwtExpiration)))
-                .signWith(getSigningKey())
+                .signWith(signingKey)
                 .compact();
     }
 
@@ -52,7 +55,7 @@ public class JwtServiceImpl implements JwtService {
     // Extract all claims from the token
     private Claims extractAllClaims(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey())
+                .verifyWith(signingKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
