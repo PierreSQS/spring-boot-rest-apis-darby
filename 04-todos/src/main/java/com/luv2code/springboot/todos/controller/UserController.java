@@ -1,6 +1,6 @@
 package com.luv2code.springboot.todos.controller;
 
-import com.luv2code.springboot.todos.entity.SecurityUser;
+import com.luv2code.springboot.todos.response.UserResponse;
 import com.luv2code.springboot.todos.userservice.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
     private final UserService userService;
 
     @GetMapping("/info")
-    public SecurityUser getUserInfo() {
+    public UserResponse getUserInfo() {
         return userService.getUserInfo();
     }
 
