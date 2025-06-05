@@ -1,7 +1,7 @@
 package com.luv2code.springboot.todos.userservice;
 
-import com.luv2code.springboot.todos.entity.User;
+import com.luv2code.springboot.todos.entity.SecurityUser;
 
 public interface UserService {
-    User getUserInfo();
+    SecurityUser getUserInfo();
 }
