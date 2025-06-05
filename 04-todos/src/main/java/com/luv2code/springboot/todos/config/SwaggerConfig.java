@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @OpenAPIDefinition(
         info = @Info(
                 title = "ToDos API",
-                version = "1.0",
+                version = "v1",
                 description = "# API for managing todos"
         ),
         security = @SecurityRequirement(

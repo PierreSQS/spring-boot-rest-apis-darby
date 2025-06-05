@@ -9,7 +9,7 @@ import java.util.Collection;
 @RequiredArgsConstructor
 public class SecurityUser implements UserDetails {
 
-    private final User user;
+    private final transient User user;
 
     public Long getId() {
         return user.getId();
