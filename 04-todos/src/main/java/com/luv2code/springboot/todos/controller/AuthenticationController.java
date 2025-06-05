@@ -5,6 +5,7 @@ import com.luv2code.springboot.todos.request.RegisterRequest;
 import com.luv2code.springboot.todos.response.AuthenticationResponse;
 import com.luv2code.springboot.todos.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +32,7 @@ public class AuthenticationController {
     }
 
     @Operation(summary = "Login a user", description = "Login a user by generation JWT token for this User.")
+    @SecurityRequirements({})
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public AuthenticationResponse login(@Valid @RequestBody AuthenticationRequest authRequest) {
