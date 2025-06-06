@@ -1,10 +1,10 @@
 package com.luv2code.springboot.todos.response;
 
-import com.luv2code.springboot.todos.entity.Authority;
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
 
-import java.util.List;
+import java.util.Collection;
 
 @Data
 @Builder
@@ -15,5 +15,5 @@ public class UserResponse {
 
     private String email;
 
-    private List<Authority> authorities;
+    private Collection<? extends GrantedAuthority> authorities;
 }
