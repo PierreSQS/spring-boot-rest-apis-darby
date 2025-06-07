@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
         // check if the user is authenticated
         if (authentication == null || !authentication.isAuthenticated()
-                || !(authentication.getPrincipal().equals("anonymousUser"))) {
+                || (authentication.getPrincipal().equals("anonymousUser"))) {
             throw new AccessDeniedException("Authentication is required to delete a user");
         }
 
