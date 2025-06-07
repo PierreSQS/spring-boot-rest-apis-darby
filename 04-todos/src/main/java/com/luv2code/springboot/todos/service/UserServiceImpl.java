@@ -4,11 +4,9 @@ import com.luv2code.springboot.todos.entity.SecurityUser;
 import com.luv2code.springboot.todos.entity.User;
 import com.luv2code.springboot.todos.repository.UserRepository;
 import com.luv2code.springboot.todos.response.UserResponse;
+import com.luv2code.springboot.todos.util.FindAuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -18,11 +16,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepo;
 
+    private final FindAuthenticatedUser findAuthenticatedUser;
+
 
     @Override
     public UserResponse getUserInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+
+        SecurityUser securityUser = findAuthenticatedUser.getAuthenticatedUser();
 
         return UserResponse.builder()
                 .id(securityUser.getId())
@@ -34,25 +34,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser() {
-        // get the authentication object from the security context
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        // check if the user is authenticated
-        if (authentication == null || !authentication.isAuthenticated()
-                || (authentication.getPrincipal().equals("anonymousUser"))) {
-            throw new AccessDeniedException("Authentication is required to delete a user");
-        }
-
-        // get the logged-in user
-        SecurityUser securityUser = (SecurityUser) authentication.getPrincipal();
+        SecurityUser authenticatedUser = findAuthenticatedUser.getAuthenticatedUser();
 
         // is the logged-in user the last admin?
         // if so, stop the deletion process by throwing an exception
-        if(isLastAdmin(securityUser)) {
+        if(isLastAdmin(authenticatedUser)) {
             throw  new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot delete the last admin user");
         }
 
-        userRepo.deleteById(securityUser.getId());
+        userRepo.deleteById(authenticatedUser.getId());
     }
 
     private boolean isLastAdmin(SecurityUser securityUser) {
