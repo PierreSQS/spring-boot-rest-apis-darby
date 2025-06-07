@@ -13,7 +13,7 @@ public class ExceptionHandlers {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<ExceptionResponses> handleException(ResponseStatusException exc) {
-        return buildResponseEntity(exc, HttpStatus.valueOf(exc.getStatusCode().toString()));
+        return buildResponseEntity(exc, HttpStatus.valueOf(exc.getStatusCode().value()));
     }
 
     @ExceptionHandler(Exception.class)
