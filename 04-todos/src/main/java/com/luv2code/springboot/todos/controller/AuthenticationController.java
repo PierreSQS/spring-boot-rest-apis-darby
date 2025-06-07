@@ -26,13 +26,14 @@ public class AuthenticationController {
 
     @Operation(summary = "Register a new user", description = "Create a new User in the DB.")
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirements()
     @PostMapping("/register")
     public void register(@Valid @RequestBody RegisterRequest registerRequest) throws Exception {
         authenticationService.register(registerRequest);
     }
 
     @Operation(summary = "Login a user", description = "Login a user by generation JWT token for this User.")
-    @SecurityRequirements({})
+    @SecurityRequirements()
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/login")
     public AuthenticationResponse login(@Valid @RequestBody AuthenticationRequest authRequest) {
