@@ -1,7 +1,7 @@
 package com.luv2code.springboot.todos.controller;
 
 import com.luv2code.springboot.todos.response.UserResponse;
-import com.luv2code.springboot.todos.userservice.UserService;
+import com.luv2code.springboot.todos.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;

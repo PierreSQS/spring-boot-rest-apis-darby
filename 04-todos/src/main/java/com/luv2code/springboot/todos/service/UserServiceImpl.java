@@ -1,4 +1,4 @@
-package com.luv2code.springboot.todos.userservice;
+package com.luv2code.springboot.todos.service;
 
 import com.luv2code.springboot.todos.entity.SecurityUser;
 import com.luv2code.springboot.todos.entity.User;
