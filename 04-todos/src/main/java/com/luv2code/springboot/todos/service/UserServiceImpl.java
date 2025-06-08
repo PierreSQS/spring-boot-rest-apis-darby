@@ -58,8 +58,8 @@ public class UserServiceImpl implements UserService {
         User user = getDbUser(securityUser);
 
         // Validate that the update password matches the old password
-        if (!isUpdatePasswordMatch(user.getPassword(), passwordUpdateRequest.getOldPassword())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect");
+        if (!isUpdatePasswordMatch(user.getPassword(), passwordUpdateRequest.getPwdToUpdate())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Password to update is incorrect");
         }
 
         // Confirm that the new password matches the confirmation
@@ -77,8 +77,8 @@ public class UserServiceImpl implements UserService {
         userRepo.save(user);
     }
 
-    private boolean isUpdatePasswordMatch(String updatePassword, String oldPassword) {
-        return passwordEncoder.matches(oldPassword, updatePassword);
+    private boolean isUpdatePasswordMatch(String pwdToUpdate, String oldPassword) {
+        return passwordEncoder.matches(oldPassword, pwdToUpdate);
     }
 
     private boolean isNewPasswordConfirmed(String newPassword, String newPasswordConfirmation) {
