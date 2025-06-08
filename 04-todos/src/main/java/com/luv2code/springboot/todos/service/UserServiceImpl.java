@@ -98,10 +98,10 @@ public class UserServiceImpl implements UserService {
 
     private boolean isLastAdmin(SecurityUser securityUser) {
         // get the real user from the DB since the SecurityUser is not a JPA entity
-        User foundUser = getDbUser(securityUser);
+        User userFromDB = getDbUser(securityUser);
 
         // is the user an admin?
-        if (foundUser.getAuthorities().stream()
+        if (userFromDB.getAuthorities().stream()
                 .noneMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"))) {
             return false; // User is not an admin, go ahead with the deletion process
         }
