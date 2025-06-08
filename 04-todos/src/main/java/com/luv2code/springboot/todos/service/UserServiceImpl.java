@@ -68,7 +68,7 @@ public class UserServiceImpl implements UserService {
         }
 
         // Validate that the new password is different from the old one
-        if (!isNewPasswordDifferent(user.getPassword(), passwordUpdateRequest.getNewPassword())) {
+        if (!isNewPasswordDifferent(passwordUpdateRequest.getPwdToUpdate(), passwordUpdateRequest.getNewPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from the old one");
         }
 
