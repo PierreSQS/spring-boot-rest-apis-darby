@@ -3,11 +3,14 @@ package com.luv2code.springboot.todos.service;
 import com.luv2code.springboot.todos.entity.SecurityUser;
 import com.luv2code.springboot.todos.entity.User;
 import com.luv2code.springboot.todos.repository.UserRepository;
+import com.luv2code.springboot.todos.request.PasswordUpdateRequest;
 import com.luv2code.springboot.todos.response.UserResponse;
 import com.luv2code.springboot.todos.util.FindAuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
@@ -18,6 +21,7 @@ public class UserServiceImpl implements UserService {
 
     private final FindAuthenticatedUser findAuthenticatedUser;
 
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public UserResponse getUserInfo() {
@@ -46,10 +50,55 @@ public class UserServiceImpl implements UserService {
         userRepo.deleteById(authenticatedUser.getId());
     }
 
+    @Override
+    @Transactional
+    public void updatePassword(PasswordUpdateRequest passwordUpdateRequest) {
+        SecurityUser securityUser = findAuthenticatedUser.getAuthenticatedUser();
+
+        User user = getDbUser(securityUser);
+
+        // Validate that the update password matches the old password
+        if (!isUpdatePasswordMatch(user.getPassword(), passwordUpdateRequest.getOldPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Current password is incorrect");
+        }
+
+        // Confirm that the new password matches the confirmation
+        if (!isNewPasswordConfirmed(passwordUpdateRequest.getNewPassword(), passwordUpdateRequest.getConfirmedPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password confirmation does not match");
+        }
+
+        // Validate that the new password is different from the old one
+        if (!isNewPasswordDifferent(user.getPassword(), passwordUpdateRequest.getNewPassword())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "New password must be different from the old one");
+        }
+
+        // Update the user's password
+        user.setPassword(passwordEncoder.encode(passwordUpdateRequest.getNewPassword()));
+        userRepo.save(user);
+    }
+
+    private boolean isUpdatePasswordMatch(String updatePassword, String oldPassword) {
+        return passwordEncoder.matches(oldPassword, updatePassword);
+    }
+
+    private boolean isNewPasswordConfirmed(String newPassword, String newPasswordConfirmation) {
+        return newPassword.equals(newPasswordConfirmation);
+    }
+
+    private boolean isNewPasswordDifferent(String oldPassword, String newPassword) {
+        return !oldPassword.equals(newPassword);
+    }
+
+    private User getDbUser(SecurityUser securityUser) {
+        // get the real user from the DB since the SecurityUser is not a JPA entity
+        return userRepo.findById(securityUser.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+    }
+
+
     private boolean isLastAdmin(SecurityUser securityUser) {
         // get the real user from the DB since the SecurityUser is not a JPA entity
-        User foundUser = userRepo.findById(securityUser.getId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        User foundUser = getDbUser(securityUser);
 
         // is the user an admin?
         if (foundUser.getAuthorities().stream()
@@ -60,4 +109,5 @@ public class UserServiceImpl implements UserService {
         // Check if this is the last admin user
         return userRepo.countAdmins() <= 1;
     }
+
 }
