@@ -41,4 +41,11 @@ public class SecurityUser implements UserDetails {
     public String getUsername() {
         return user.getEmail();
     }
+
+    @Override
+    public String toString() {
+        return "SecurityUser{" +
+                "user=" + user.getFirstName() +" " + user.getLastName() +
+                '}';
+    }
 }
