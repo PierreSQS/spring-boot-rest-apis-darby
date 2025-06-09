@@ -38,7 +38,7 @@ class UserControllerWithTokenIT {
     }
 
     @Test
-    @DisplayName("POST /api/v1/auth/login and GET /api/users/info mit JWT")
+    @DisplayName("POST /api/v1/auth/login and GET /api/users/info with JWT")
     void loginAndGetUserInfo_withJwtToken() throws Exception {
 
         String loginResponse = mockMvc.perform(post("/api/v1/auth/login")
@@ -61,6 +61,16 @@ class UserControllerWithTokenIT {
                         .value("Pierrot Mongonnam"))
                 .andExpect(jsonPath("$.authorities[0].authority").value("ROLE_ADMIN"))
                 .andExpect(jsonPath("$.authorities[1].authority").value("ROLE_USER"))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName(" GET /api/users/info without JWT")
+    void getUserInfo_WithoutJwtToken() throws Exception {
+
+        // Unauthenticated request to /api/users/info
+        mockMvc.perform(get("/api/users/info"))
+                .andExpect(status().isUnauthorized())
                 .andDo(print());
     }
 
