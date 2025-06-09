@@ -3,9 +3,11 @@ package com.luv2code.springboot.todos.request;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
 
-@Getter
+@Data
+@Builder
 public class AuthenticationRequest {
 
     @NotEmpty(message = "Email is mandatory")
