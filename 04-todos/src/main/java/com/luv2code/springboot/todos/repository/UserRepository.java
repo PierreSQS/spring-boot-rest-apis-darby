@@ -9,7 +9,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
-    @Query("SELECT COUNT(u) FROM User u JOIN u.authorities a WHERE a.authority = 'ROLE_ADMIN'")
+    @Query("SELECT COUNT(u) FROM User u JOIN u.authorities a WHERE a.role = 'ROLE_ADMIN'")
     int countAdmins();
 }
 
