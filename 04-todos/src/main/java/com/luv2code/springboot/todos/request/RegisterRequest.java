@@ -4,15 +4,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 /**
  * RegisterRequest is a DTO class that represents the data required for user registration.
  * It includes validation annotations to ensure that the input data meets certain criteria.
  */
-@Getter
-@Setter
+@Data
 @Builder
 public class RegisterRequest {
 

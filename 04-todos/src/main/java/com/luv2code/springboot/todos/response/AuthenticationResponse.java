@@ -1,11 +1,9 @@
 package com.luv2code.springboot.todos.response;
 
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @Builder
 public class AuthenticationResponse {
     private String token;
