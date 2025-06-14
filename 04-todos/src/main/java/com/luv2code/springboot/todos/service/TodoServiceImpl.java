@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -20,6 +22,17 @@ public class TodoServiceImpl implements TodoService {
 
     private final FindAuthenticatedUser findAuthenticatedUser;
 
+
+    @Override
+    public List<TodoResponse> getAllTodos() {
+        SecurityUser securityUser = findAuthenticatedUser.getAuthenticatedUser();
+
+        List<Todo> todos = todoRepo.findByOwner(securityUser.getUser());
+
+        return todos.stream()
+                .map(this::buildTodoResponse)
+                .toList();
+    }
 
     @Transactional
     @Override
@@ -37,12 +50,16 @@ public class TodoServiceImpl implements TodoService {
         Todo savedTodo = todoRepo.save(todo);
         log.info("Saved new todo for user: {}", securityUser.getEmail());
 
+        return buildTodoResponse(savedTodo);
+    }
+
+    private TodoResponse buildTodoResponse(Todo todo) {
         return TodoResponse.builder()
-                .id(savedTodo.getId())
-                .title(savedTodo.getTitle())
-                .description(savedTodo.getDescription())
-                .priority(savedTodo.getPriority())
-                .complete(savedTodo.isComplete())
+                .id(todo.getId())
+                .title(todo.getTitle())
+                .description(todo.getDescription())
+                .priority(todo.getPriority())
+                .complete(todo.isComplete())
                 .build();
     }
 }
