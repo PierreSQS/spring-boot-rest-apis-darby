@@ -1,0 +1,58 @@
+{
+  "email": "mongonnam@luv2code.com",
+  "password": "Mongonnam"
+}
+
+{
+  "email": "eric.robby@luv2code.com",
+  "password": "Robby"
+}
+
+{
+  "email": "user.todelete@luv2code.com",
+  "password": "todelete"
+}  
+
+{
+  "firstName": "Pierrot",
+  "lastName": "Mongonnam",
+  "email": "mongonnam@luv2code.com",
+  "password": "Mongonnam"
+}
+
+{
+  "firstName": "Eric",
+  "lastName": "Robby",
+  "email": "eric.robby@luv2code.com",
+  "password": "Robby"
+}
+
+{
+  "firstName": "user",
+  "lastName": "todelete",
+  "email": "user.todelete@luv2code.com",
+  "password": "todelete"
+}
+
+
+"SELECT COUNT(u) FROM User u JOIN u.authorities a WHERE a.authority = 'ROLE_ADMIN'"
+
+select
+	u1_0.id,
+	u1_0.created_at,
+	u1_0.email,
+	u1_0.first_name,
+	u1_0.last_name,
+	u1_0.password,
+	u1_0.updated_at,
+	a1_0.user_id,
+	a1_0.authority 
+from
+	users u1_0 
+left join
+	user_authorities a1_0 
+		on u1_0.id=a1_0.user_id 
+where
+	u1_0.id=1;
+
+
