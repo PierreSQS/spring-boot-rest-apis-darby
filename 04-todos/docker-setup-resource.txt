@@ -7,3 +7,6 @@ docker --version
 # - container named 'mysqldb'
 # - port 3306 in the container mapped to port 3307 on the host
 docker run -d -e MYSQL_ROOT_PASSWORD=secret -e MYSQL_DATABASE=tododb --name mysqldb -p 3307:3306 mysql:8.0
+
+# with volume mapping to persist data
+docker run --name MySQL-8.4.5 -p 3308:3306 -v mysql_845_data:/etc/mysql/conf.d -e MYSQL_ROOT_PASSWORD=<password> -e MYSQL_DATABASE=darby_todo_db -d mysql:8.4.5
