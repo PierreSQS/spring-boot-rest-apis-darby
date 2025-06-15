@@ -72,6 +72,20 @@ public class TodoServiceImpl implements TodoService {
         return buildTodoResponse(updatedTodo);
     }
 
+    @Transactional
+    @Override
+    public void deleteTodo(long id) {
+        SecurityUser securityUser = findAuthenticatedUser.getAuthenticatedUser();
+
+        Todo todo = todoRepo.findByIdAndOwner(id, securityUser.getUser())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Todo with id: " + id
+                                + " not found for user: "+ securityUser.getEmail()));
+
+        todoRepo.delete(todo);
+        log.info("Deleted todo with id: {} for user: {}", id, securityUser.getEmail());
+    }
+
     private TodoResponse buildTodoResponse(Todo todo) {
         return TodoResponse.builder()
                 .id(todo.getId())
