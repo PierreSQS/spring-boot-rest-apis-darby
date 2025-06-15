@@ -50,7 +50,7 @@ public class TodoServiceImpl implements TodoService {
                 .build();
 
         Todo savedTodo = todoRepo.save(todo);
-        log.info("Saved new todo for user: {}", securityUser.getEmail());
+        log.info("Saved new todo with id: {} for user: {}", savedTodo.getId(), securityUser.getEmail());
 
         return buildTodoResponse(savedTodo);
     }
@@ -62,8 +62,8 @@ public class TodoServiceImpl implements TodoService {
 
         Todo todo = todoRepo.findByIdAndOwner(id, securityUser.getUser())
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Todo with id: " + id
-                                + " not found for user: "+ securityUser.getEmail()));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Todo with id: " + id+ " not found for user: "+ securityUser.getEmail()));
 
         todo.setComplete(!todo.isComplete());
         Todo updatedTodo = todoRepo.save(todo);
@@ -79,10 +79,11 @@ public class TodoServiceImpl implements TodoService {
 
         Todo todo = todoRepo.findByIdAndOwner(id, securityUser.getUser())
                 .orElseThrow(() ->
-                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Todo with id: " + id
-                                + " not found for user: "+ securityUser.getEmail()));
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                "Todo with id: " + id + " not found for user: "+ securityUser.getEmail()));
 
         todoRepo.delete(todo);
+
         log.info("Deleted todo with id: {} for user: {}", id, securityUser.getEmail());
     }
 
