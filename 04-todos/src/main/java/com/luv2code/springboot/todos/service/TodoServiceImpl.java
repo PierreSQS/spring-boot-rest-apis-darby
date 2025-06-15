@@ -8,8 +8,10 @@ import com.luv2code.springboot.todos.response.TodoResponse;
 import com.luv2code.springboot.todos.util.FindAuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -51,6 +53,23 @@ public class TodoServiceImpl implements TodoService {
         log.info("Saved new todo for user: {}", securityUser.getEmail());
 
         return buildTodoResponse(savedTodo);
+    }
+
+    @Transactional
+    @Override
+    public TodoResponse toggleTodoCompletion(long id) {
+        SecurityUser securityUser = findAuthenticatedUser.getAuthenticatedUser();
+
+        Todo todo = todoRepo.findByIdAndOwner(id, securityUser.getUser())
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.NOT_FOUND,"Todo with id: " + id
+                                + " not found for user: "+ securityUser.getEmail()));
+
+        todo.setComplete(!todo.isComplete());
+        Todo updatedTodo = todoRepo.save(todo);
+        log.info("Toggled completion for todo with id: {} for user: {}", id, securityUser.getEmail());
+
+        return buildTodoResponse(updatedTodo);
     }
 
     private TodoResponse buildTodoResponse(Todo todo) {
