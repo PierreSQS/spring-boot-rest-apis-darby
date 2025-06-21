@@ -46,11 +46,6 @@ public class AdminServiceImpl implements AdminService {
         // Add the admin role to the user
         authorities.add(new Authority("ROLE_ADMIN"));
 
-        // Add the user role if not already present
-        if (!authorities.contains(new Authority("ROLE_USER"))) {
-            authorities.add(new Authority("ROLE_USER"));
-        }
-
         // Save the updated user
         User updatedUser = userRepo.save(user);
 
