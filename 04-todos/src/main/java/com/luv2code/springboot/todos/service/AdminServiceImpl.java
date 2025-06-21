@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 public class AdminServiceImpl implements AdminService {
 
+    public static final String ADMIN_ROLE = "ROLE_ADMIN";
     private final UserRepository userRepo;
 
     @Override
@@ -39,18 +40,35 @@ public class AdminServiceImpl implements AdminService {
         List<Authority> authorities = user.getAuthorities();
 
         // Check if the user is already an admin
-        if (authorities.contains(new Authority("ROLE_ADMIN"))) {
+        if (authorities.contains(new Authority(ADMIN_ROLE))) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with id: " + userId+ " is already an admin");
         }
 
         // Add the admin role to the user
-        authorities.add(new Authority("ROLE_ADMIN"));
+        authorities.add(new Authority(ADMIN_ROLE));
 
         // Save the updated user
         User updatedUser = userRepo.save(user);
 
         // Return the updated user as a UserResponse
         return buidUserResponse(updatedUser);
+    }
+
+    @Transactional
+    @Override
+    public void deleteNonAdminUser(long userId) {
+        // Check if the user exists
+        User user = userRepo.findById(userId)
+                .orElseThrow(() ->
+                        new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with id: " + userId + " not found"));
+
+        // Check if the user is an admin
+        if (user.getAuthorities().contains(new Authority(ADMIN_ROLE))) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Deleting an admin user is not allowed");
+        }
+
+        // If the user is not an admin, delete the user
+        userRepo.delete(user);
     }
 
     private UserResponse buidUserResponse(User user) {
