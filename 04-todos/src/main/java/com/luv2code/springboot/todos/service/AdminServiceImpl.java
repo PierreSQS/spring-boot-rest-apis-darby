@@ -1,9 +1,10 @@
 package com.luv2code.springboot.todos.service;
 
+import com.luv2code.springboot.todos.dto.UserResponseDTO;
 import com.luv2code.springboot.todos.entity.Authority;
 import com.luv2code.springboot.todos.entity.User;
+import com.luv2code.springboot.todos.mapper.UserMapper;
 import com.luv2code.springboot.todos.repository.UserRepository;
-import com.luv2code.springboot.todos.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -18,19 +19,20 @@ public class AdminServiceImpl implements AdminService {
 
     public static final String ADMIN_ROLE = "ROLE_ADMIN";
     private final UserRepository userRepo;
+    private final UserMapper userMapper;
 
     @Override
-    public List<UserResponse> getAllUsers() {
-        // Fetch all users from the repository and map them to UserResponse objects
+    public List<UserResponseDTO> getAllUsers() {
+        // Fetch all users from the repository and map them to UserResponseDTO objects
         return userRepo.findAll().stream()
-                .map(this::buidUserResponse)
+                .map(userMapper::userToUserResponseDTO)
                 .toList();
 
     }
 
     @Transactional
     @Override
-    public UserResponse promoteToAdmin(long userId) {
+    public UserResponseDTO promoteToAdmin(long userId) {
         // Find the user by ID
         User user = userRepo.findById(userId)
                 .orElseThrow(() ->
@@ -50,8 +52,8 @@ public class AdminServiceImpl implements AdminService {
         // Save the updated user
         User updatedUser = userRepo.save(user);
 
-        // Return the updated user as a UserResponse
-        return buidUserResponse(updatedUser);
+        // Return the updated user as a UserResponseDTO
+        return userMapper.userToUserResponseDTO(updatedUser);
     }
 
     @Transactional
@@ -71,12 +73,4 @@ public class AdminServiceImpl implements AdminService {
         userRepo.delete(user);
     }
 
-    private UserResponse buidUserResponse(User user) {
-        return UserResponse.builder()
-                .id(user.getId())
-                .fullName(user.getFirstName() + " " + user.getLastName())
-                .email(user.getEmail())
-                .authorities(user.getAuthorities())
-                .build();
-    }
 }

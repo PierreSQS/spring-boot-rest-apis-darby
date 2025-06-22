@@ -1,6 +1,6 @@
 package com.luv2code.springboot.todos.controller;
 
-import com.luv2code.springboot.todos.response.UserResponse;
+import com.luv2code.springboot.todos.dto.UserResponseDTO;
 import com.luv2code.springboot.todos.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,14 +25,14 @@ public class AdminController {
     @Operation(summary = "Get all users", description = "Fetch all users in the system.")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/users")
-    public Iterable<UserResponse> getAllUsers() {
+    public Iterable<UserResponseDTO> getAllUsers() {
         return adminService.getAllUsers();
     }
 
     @Operation(summary = "Promote a user to admin", description = "Promote a user to admin role.")
     @ResponseStatus(HttpStatus.OK)
     @PutMapping("/{userId}")
-    public UserResponse promoteToAdmin(@PathVariable long userId) {
+    public UserResponseDTO promoteToAdmin(@PathVariable long userId) {
         return adminService.promoteToAdmin(userId);
     }
 
