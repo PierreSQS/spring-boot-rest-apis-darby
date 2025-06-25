@@ -1,10 +1,11 @@
 package com.luv2code.springboot.todos.service;
 
+import com.luv2code.springboot.todos.dto.UserResponseDTO;
 import com.luv2code.springboot.todos.entity.SecurityUser;
 import com.luv2code.springboot.todos.entity.User;
+import com.luv2code.springboot.todos.mapper.UserMapper;
 import com.luv2code.springboot.todos.repository.UserRepository;
 import com.luv2code.springboot.todos.request.PasswordUpdateRequest;
-import com.luv2code.springboot.todos.response.UserResponse;
 import com.luv2code.springboot.todos.util.FindAuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,17 +24,14 @@ public class UserServiceImpl implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final UserMapper userMapper;
+
     @Override
-    public UserResponse getUserInfo() {
+    public UserResponseDTO getUserInfo() {
 
         SecurityUser securityUser = findAuthenticatedUser.getAuthenticatedUser();
 
-        return UserResponse.builder()
-                .id(securityUser.getId())
-                .fullName(securityUser.getFirstName()+" "+securityUser.getLastName())
-                .email(securityUser.getEmail())
-                .authorities(securityUser.getAuthorities())
-                .build();
+        return userMapper.securityUserToUserResponseDTO(securityUser);
     }
 
     @Override

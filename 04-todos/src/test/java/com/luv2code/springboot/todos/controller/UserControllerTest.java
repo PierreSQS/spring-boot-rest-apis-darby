@@ -3,8 +3,8 @@ package com.luv2code.springboot.todos.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luv2code.springboot.todos.config.JwtAuthenticationFilter;
+import com.luv2code.springboot.todos.dto.UserResponseDTO;
 import com.luv2code.springboot.todos.request.PasswordUpdateRequest;
-import com.luv2code.springboot.todos.response.UserResponse;
 import com.luv2code.springboot.todos.service.JwtServiceImpl;
 import com.luv2code.springboot.todos.service.UserService;
 import org.junit.jupiter.api.DisplayName;
@@ -41,7 +41,7 @@ class UserControllerTest {
     @DisplayName("GET /api/users/info - Erfolgreich")
     @WithMockUser(username="admin",roles={"USER","ADMIN"})
     void getUserInfo_success() throws Exception {
-        UserResponse response = UserResponse.builder()
+        UserResponseDTO response = UserResponseDTO.builder()
                 .fullName("testuser")
                 .build();
 

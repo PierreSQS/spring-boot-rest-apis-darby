@@ -1,7 +1,7 @@
 package com.luv2code.springboot.todos.controller;
 
+import com.luv2code.springboot.todos.dto.UserResponseDTO;
 import com.luv2code.springboot.todos.request.PasswordUpdateRequest;
-import com.luv2code.springboot.todos.response.UserResponse;
 import com.luv2code.springboot.todos.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +27,7 @@ public class UserController {
     @Operation(summary = "Get user info", description = "Retrieve information about the currently authenticated user.")
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/info")
-    public UserResponse getUserInfo() {
+    public UserResponseDTO getUserInfo() {
         return userService.getUserInfo();
     }
 
