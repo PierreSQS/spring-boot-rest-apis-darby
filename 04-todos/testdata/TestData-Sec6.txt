@@ -46,7 +46,7 @@ select
 	u1_0.password,
 	u1_0.updated_at,
 	a1_0.user_id,
-	a1_0.authority 
+	a1_0.role
 from
 	users u1_0 
 left join
