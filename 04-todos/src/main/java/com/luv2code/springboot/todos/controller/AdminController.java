@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Admin Rest API Endpoints", description = "Operations related to managing Admin Users.")
+@Tag(name = "Admin Rest API Endpoints", description = "Operations related to managing Users.")
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/admin")
