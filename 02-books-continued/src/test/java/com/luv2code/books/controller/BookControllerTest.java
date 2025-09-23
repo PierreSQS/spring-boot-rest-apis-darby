@@ -1,4 +1,3 @@
-// File: src/test/java/com/luv2code/books/controller/BookControllerTest.java
 package com.luv2code.books.controller;
 
 import com.luv2code.books.request.BookRequest;
@@ -11,6 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookController.class)
@@ -76,11 +76,12 @@ class BookControllerTest {
     @Test
     void updateBook_validId_returnsNoContent() throws Exception {
         BookRequest request = new BookRequest("Updated Book", "Author", "Math", 5);
-        mockMvc.perform(put("/api/books/1")
+        mockMvc.perform(put("/api/books/2")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNoContent())
-                .andExpect(jsonPath("$.title").value("Updated Book"));
+                .andExpect(jsonPath("$.title").value("Updated Book"))
+                .andDo(print());
     }
 
     @Test
